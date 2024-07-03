@@ -12,7 +12,10 @@
 https://www.python.org/downloads/
 
 执行安装运行模块
-`pip install requests`
+
+```shell
+pip install requests tqdm urllib3
+```
 
 执行抓取：
 
@@ -23,7 +26,9 @@ demo：
 
 
 
-# 额外添加功能
+## 2024/07/03
+
+### 
 
 增加需要密码需要设置cookie功能爬取
 
@@ -31,8 +36,37 @@ demo：
 
 命令行 
 
+示例 1：提供 URL 和 Cookie
+
 ```shell
-python main.py https://www.yuque.com/xxx/xxx "vertified_books=******"
+python main.py "https://www.yuque.com/burpheart/phpaudit" --cookie "verified_books=****"
+```
+
+
+示例 2：提供 URL、Cookie 和输出路径
+
+```python
+python main.py "https://www.yuque.com/burpheart/phpaudit" --cookie "verified_books=****" --output "download"
+```
+
+
+示例 3：仅提供 URL
+
+```shell
+python main.py "https://www.yuque.com/burpheart/phpaudit"
+```
+
+示例 4：提供 URL 和输出路径
+
+```shell
+python main.py "https://www.yuque.com/burpheart/phpaudit" --output "download"
+```
+
+
+示例 5：使用默认参数（显示帮助信息）
+
+```shell
+python main.py
 ```
 
 
