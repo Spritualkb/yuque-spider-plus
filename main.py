@@ -10,6 +10,41 @@ import argparse
 from requests.adapters import HTTPAdapter
 from tqdm import tqdm
 from urllib3 import Retry
+from bs4 import BeautifulSoup
+
+
+def fetch_url_title(url, cookies=None):
+    try:
+        headers = {'Cookie': cookies} if cookies else {}
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            html_content = response.text
+            soup = BeautifulSoup(html_content, 'html.parser')
+            title_tag = soup.title
+            if title_tag:
+                title = title_tag.string.strip()
+                # 替换非法字符
+                title_cleaned = title.replace('/', '-').replace('\\', '-').replace(':', '-').replace('*', '-').replace(
+                    '?', '-').replace('"', '-').replace('<', '-').replace('>', '-').replace('|', '-')
+                # 去除固定的字符串
+                title_cleaned = title_cleaned.replace(' · 语雀', '')
+                # 提取链接中的部分并按指定格式拼接到标题中
+                match = re.search(r'u\d+/([\w-]+)', url)
+                if match:
+                    extracted_part = match.group(1)  # 获取第一个捕获组的内容
+                    final_title = f"{extracted_part}-{title_cleaned}"
+                    print("页面标题:", final_title)
+                    return final_title
+                else:
+                    return title_cleaned
+            else:
+                return "无标题"
+        else:
+            print(f"请求失败，状态码：{response.status_code}")
+            return "请求失败"
+    except requests.exceptions.RequestException as e:
+        print(f"请求发生错误：{e}")
+        return "请求错误"
 
 
 def save_page(book_id, slug, path, cookies=None):
@@ -74,7 +109,10 @@ def get_book(url, cookies=None, output_path="download"):
     temp = {}
     md = ""
     table = str.maketrans('\/:*?"<>|\n\r', "___________")
-    output_dir = os.path.join(output_path, str(docsjson['book']['id']))
+
+    book_title = fetch_url_title(url, cookies)
+    output_dir = os.path.join(output_path, book_title)
+
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -99,7 +137,8 @@ def get_book(url, cookies=None, output_path="download"):
             if temp[doc['uuid']].endswith("/"):
                 md += "## " + temp[doc['uuid']][:-1] + "\n"
             else:
-                md += "  " * (temp[doc['uuid']].count("/") - 1) + "* " + temp[doc['uuid']][temp[doc['uuid']].rfind("/") + 1:] + "\n"
+                md += "  " * (temp[doc['uuid']].count("/") - 1) + "* " + temp[doc['uuid']][
+                                                                         temp[doc['uuid']].rfind("/") + 1:] + "\n"
         if doc['url'] != '':
             if doc['parent_uuid'] != "":
                 if temp[doc['parent_uuid']].endswith("/"):
