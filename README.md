@@ -28,9 +28,7 @@ demo：
 
 ## 2024/07/03
 
-### 
-
-增加需要密码需要设置cookie功能爬取
+### 增加需要密码需要设置cookie功能爬取
 
 ![image-20240621112212019](./assets/image-20240621112212019.png)
 
@@ -68,6 +66,17 @@ python main.py "https://www.yuque.com/burpheart/phpaudit" --output "download"
 ```shell
 python main.py
 ```
+
+
+
+## 2024/07/04
+
+### 网络图片本地观看
+
+修复出现部分图片无法本地加载的情况，把网络图片下载下来并把markdown对应的图片路径替换为相对路径的./assets路径下
+
+
+
 
 
 

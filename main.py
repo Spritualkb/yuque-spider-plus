@@ -23,9 +23,36 @@ def save_page(book_id, slug, path, cookies=None):
             print("文档下载失败 页面可能被删除 ", book_id, slug, docsdata.content)
             return
         docsjson = json.loads(docsdata.content)
+        markdown_content = docsjson['data']['sourcecode']
+
+        assets_dir = os.path.join(os.path.dirname(path), 'assets')
+        if not os.path.exists(assets_dir):
+            os.makedirs(assets_dir)
+
+        def download_image(match):
+            url = match.group(1)
+            if not url.startswith('http'):
+                return match.group(0)
+            url = url.split('#')[0]  # 移除URL中的所有参数
+            timestamp = int(time.time() * 1000)
+            extension = os.path.splitext(url)[1]
+            image_name = f"image-{timestamp}{extension}"
+            # 移除或替换文件名中的非法字符
+            image_name = re.sub(r'[<>:"/\\|?*]', '_', image_name)
+            image_path = os.path.join(assets_dir, image_name)
+            try:
+                image_data = requests.get(url, headers=headers, timeout=10).content
+                with open(image_path, 'wb') as img_file:
+                    img_file.write(image_data)
+                return f'![image-{timestamp}](./assets/{image_name})'
+            except requests.exceptions.RequestException as e:
+                print(f"图片下载失败: {e}")
+                return match.group(0)
+
+        markdown_content = re.sub(r'!\[.*?\]\((.*?)\)', download_image, markdown_content)
 
         with open(path, 'w', encoding='utf-8') as f:
-            f.write(docsjson['data']['sourcecode'])
+            f.write(markdown_content)
     except requests.exceptions.RequestException as e:
         print(f"请求失败: {e}")
 
@@ -101,7 +128,6 @@ if __name__ == '__main__':
     parser.add_argument('--cookie', default=None, help='用于认证的 Cookie。')
     parser.add_argument('--output', default="download", help='下载文件的输出目录。')
 
-    # 如果没有提供参数，则显示帮助信息
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         sys.exit(1)
