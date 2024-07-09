@@ -23,19 +23,16 @@ def fetch_url_title(url, cookies=None):
             title_tag = soup.title
             if title_tag:
                 title = title_tag.string.strip()
-                # 替换非法字符
-                title_cleaned = title.replace('/', '-').replace('\\', '-').replace(':', '-').replace('*', '-').replace(
-                    '?', '-').replace('"', '-').replace('<', '-').replace('>', '-').replace('|', '-')
-                # 去除固定的字符串
+                title_cleaned = re.sub(r'[\/\\:*?"<>|]', '-', title)
                 title_cleaned = title_cleaned.replace(' · 语雀', '')
-                # 提取链接中的部分并按指定格式拼接到标题中
                 match = re.search(r'u\d+/([\w-]+)', url)
                 if match:
-                    extracted_part = match.group(1)  # 获取第一个捕获组的内容
+                    extracted_part = match.group(1)
                     final_title = f"{extracted_part}-{title_cleaned}"
                     print("页面标题:", final_title)
                     return final_title
                 else:
+                    print("页面标题:", title_cleaned)
                     return title_cleaned
             else:
                 return "无标题"
@@ -52,7 +49,7 @@ def save_page(book_id, slug, path, cookies=None):
         headers = {'Cookie': cookies} if cookies else {}
         docsdata = requests.get(
             f'https://www.yuque.com/api/docs/{slug}?book_id={book_id}&merge_dynamic_data=false&mode=markdown',
-            headers=headers, timeout=10
+            headers=headers, timeout=20
         )
         if docsdata.status_code != 200:
             print("文档下载失败 页面可能被删除 ", book_id, slug, docsdata.content)
@@ -68,11 +65,10 @@ def save_page(book_id, slug, path, cookies=None):
             url = match.group(1)
             if not url.startswith('http'):
                 return match.group(0)
-            url = url.split('#')[0]  # 移除URL中的所有参数
+            url = url.split('#')[0]
             timestamp = int(time.time() * 1000)
             extension = os.path.splitext(url)[1]
             image_name = f"image-{timestamp}{extension}"
-            # 移除或替换文件名中的非法字符
             image_name = re.sub(r'[<>:"/\\|?*]', '_', image_name)
             image_path = os.path.join(assets_dir, image_name)
             try:
@@ -163,14 +159,27 @@ def get_book(url, cookies=None, output_path="download"):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='从语雀下载书籍文档。')
-    parser.add_argument('url', nargs='?', default="https://www.yuque.com/burpheart/phpaudit", help='书籍的 URL。')
-    parser.add_argument('--cookie', default=None, help='用于认证的 Cookie。')
+    parser.add_argument('--input', default="input.txt", help='包含书籍 URL 和 Cookie 的输入文件，每行格式为 URL,cookie。')
     parser.add_argument('--output', default="download", help='下载文件的输出目录。')
-
-    if len(sys.argv) == 1:
-        parser.print_help(sys.stderr)
-        sys.exit(1)
 
     args = parser.parse_args()
 
-    get_book(args.url, args.cookie, args.output)
+    if not os.path.isfile(args.input):
+        print(f"输入文件 {args.input} 不存在。")
+        sys.exit(1)
+
+    with open(args.input, 'r') as file:
+        lines = file.readlines()
+
+    for line in lines:
+        line = line.strip()
+        if line:
+            parts = line.split(',', 1)
+            url = parts[0]
+            cookie = parts[1] if len(parts) > 1 else None
+            print("当前下载地址：" + url)
+            if cookie is not None:
+                print("当前cookie：" + cookie)
+            else:
+                print("当前cookie：None")
+            get_book(url, cookie, args.output)
