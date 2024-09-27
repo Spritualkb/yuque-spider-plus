@@ -75,6 +75,16 @@ python main.py
 
 修复出现部分图片无法本地加载的情况，把网络图片下载下来并把markdown对应的图片路径替换为相对路径的./assets路径下
 
+## 2024/08/22
+
+### 实现批量url笔记爬取
+
+从input.txt读取对应链接和cookie
+
+### 执行命令
+
+python main.py --input input.txt --output D:\Notebook
+
 
 
 

@@ -157,7 +157,47 @@ def get_book(url, cookies=None, output_path="download"):
         f.write(md)
 
 
+
+def create_ascii_banner():
+    banner = '''
+
+                            __..._              
+                        ..-'      o.            
+                     .-'            :           
+                 _..'             .'__..--<     
+          ...--""                 '-.           
+      ..-"                       __.'           
+    .'                  ___...--'               
+   :        ____....---'                        
+  :       .'                                    
+ :       :           _____                      
+ :      :    _..--"""     """--..__             
+:       :  ."                      ""i--.       
+:       '.:                         :    '.     
+:         '--...___i---""""--..___.'      :     
+ :                 ""---...---""          :     
+  '.                                     :      
+    '-.                                 :       
+       '--...                         .'        
+         :   ""---....._____.....---""          
+         '.    '.                               
+           '-..  '.                             
+               '.  :                            
+                : .'                            
+               /  :                             
+             .'   :                             
+           .' .--'                              
+          '--'
+
+Hi, I'm Spritualkb, welcome master to use my program
+你好,我是Spritualkb,欢迎师傅使用我的程序
+    '''
+    return banner
+
+
+
 if __name__ == '__main__':
+    print(create_ascii_banner())
     parser = argparse.ArgumentParser(description='从语雀下载书籍文档。')
     parser.add_argument('--input', default="input.txt", help='包含书籍 URL 和 Cookie 的输入文件，每行格式为 URL,cookie。')
     parser.add_argument('--output', default="download", help='下载文件的输出目录。')
