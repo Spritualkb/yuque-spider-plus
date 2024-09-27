@@ -80,6 +80,9 @@ python main.py
 ### 实现批量url笔记爬取
 
 从input.txt读取对应链接和cookie
+链接和cookie以逗号分隔
+
+
 
 ### 执行命令
 
