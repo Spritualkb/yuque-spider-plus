@@ -1,3 +1,6 @@
+# 新版本的具备有gui
+https://github.com/Spritualkb/yuque-spider-gui
+
 # yuque-spider-plus
 
 该项目基于https://github.com/burpheart/yuque-crawl项目进行修改
@@ -87,6 +90,7 @@ python main.py
 ### 执行命令
 
 python main.py --input input.txt --output D:\Notebook
+
 
 
 
